@@ -4,6 +4,7 @@ using CoffeeSlotMachine.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CoffeeSlotMachine.Core.Logic
 {
@@ -60,9 +61,9 @@ namespace CoffeeSlotMachine.Core.Logic
             {
                 string[] parts = order.ThrownInCoinValues.Split(';');
 
-                foreach (var item in parts)
+                foreach (var item in parts) 
                 {
-                    _coinRepository.AddCoin(Convert.ToInt32(parts));
+                    _coinRepository.AddCoin(Convert.ToInt32(item));
                 }
 
                 order.FinishPayment(_coinRepository.GetAllCoins());
@@ -86,7 +87,19 @@ namespace CoffeeSlotMachine.Core.Logic
         /// <returns></returns>
         public string GetCoinDepotString()
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var item in _coinRepository.GetAllCoins().OrderByDescending(c => c.CoinValue))
+            {
+                sb.Append($"{item.Amount}*{item.CoinValue}");
+
+                if (item.CoinValue > 5)
+                {
+                    sb.Append(" + ");
+                }
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

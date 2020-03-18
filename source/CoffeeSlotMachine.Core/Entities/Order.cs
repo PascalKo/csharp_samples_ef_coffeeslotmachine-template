@@ -75,6 +75,7 @@ namespace CoffeeSlotMachine.Core.Entities
             {
                 _returnCents = _thrownInCents - Product.PriceInCents;
                 isFinished = true;
+                return isFinished;
             }
             ThrownInCoinValues = $"{ThrownInCoinValues};";
 
@@ -94,13 +95,13 @@ namespace CoffeeSlotMachine.Core.Entities
             {
                 if (ret >= item.CoinValue && item.Amount > 0)
                 {
-                    if (ret <= item.CoinValue)
+                    if (ret > item.CoinValue)
                     {
-                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue}";
+                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue};";
                     }
                     else
                     {
-                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue};";
+                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue}";
                     }
 
                     ret -= item.CoinValue;

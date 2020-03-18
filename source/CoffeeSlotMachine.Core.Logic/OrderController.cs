@@ -3,6 +3,7 @@ using CoffeeSlotMachine.Core.Entities;
 using CoffeeSlotMachine.Persistence;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CoffeeSlotMachine.Core.Logic
 {
@@ -30,10 +31,8 @@ namespace CoffeeSlotMachine.Core.Logic
         /// Gibt alle Produkte sortiert nach Namen zurück
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Product> GetProducts()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerable<Product> GetProducts() => _productRepository.GetAllProducts().OrderBy(p => p.Name);
+
 
         /// <summary>
         /// Eine Bestellung wird für das Produkt angelegt.
@@ -41,7 +40,11 @@ namespace CoffeeSlotMachine.Core.Logic
         /// <param name="product"></param>
         public Order OrderCoffee(Product product)
         {
-            throw new NotImplementedException();
+            return new Order()
+            {
+                Product = product,
+                ProductId = product.Id
+            };
         }
 
         /// <summary>
@@ -52,17 +55,29 @@ namespace CoffeeSlotMachine.Core.Logic
         /// <returns>true, wenn die Bestellung abgeschlossen ist</returns>
         public bool InsertCoin(Order order, int coinValue)
         {
-            throw new NotImplementedException();
+            bool isFinished = false;
+            if (order.InsertCoin(coinValue))
+            {
+                string[] parts = order.ThrownInCoinValues.Split(';');
+
+                foreach (var item in parts)
+                {
+                    _coinRepository.AddCoin(Convert.ToInt32(parts));
+                }
+
+                order.FinishPayment(_coinRepository.GetAllCoins());
+                _orderRepository.UptadeOrder(order);
+                isFinished = true;
+            }
+            return isFinished;
         }
 
         /// <summary>
         /// Gibt den aktuellen Inhalt der Kasse, sortiert nach Münzwert absteigend zurück
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Coin> GetCoinDepot()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerable<Coin> GetCoinDepot() => _coinRepository.GetAllCoins().OrderByDescending(c => c.CoinValue);
+
 
 
         /// <summary>
@@ -78,10 +93,8 @@ namespace CoffeeSlotMachine.Core.Logic
         /// Liefert alle Orders inkl. der Produkte zurück
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Order> GetAllOrdersWithProduct()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerable<Order> GetAllOrdersWithProduct() => _orderRepository.GetAllWithProduct();
+
 
         /// <summary>
         /// IDisposable:

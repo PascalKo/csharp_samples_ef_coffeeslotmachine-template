@@ -10,6 +10,17 @@ namespace CoffeeSlotMachine.Core.Entities
     /// </summary>
     public class Order : EntityObject
     {
+        private int _thrownInCents;
+        private int _returnCents;
+        private int _donationCents;
+
+        public Order()
+        {
+            Time = DateTime.Now;
+            ThrownInCoinValues = "";
+            ReturnCoinValues = "";
+        }
+
         /// <summary>
         /// Datum und Uhrzeit der Bestellung
         /// </summary>
@@ -29,12 +40,12 @@ namespace CoffeeSlotMachine.Core.Entities
         /// <summary>
         /// Summe der eingeworfenen Cents.
         /// </summary>
-        public int ThrownInCents => -1;
+        public int ThrownInCents => _thrownInCents;
 
         /// <summary>
         /// Summe der Cents die zurückgegeben werden
         /// </summary>
-        public int ReturnCents => -1;
+        public int ReturnCents => _returnCents;
 
 
         public int ProductId { get; set; }
@@ -46,7 +57,7 @@ namespace CoffeeSlotMachine.Core.Entities
         /// Kann der Automat mangels Kleingeld nicht
         /// mehr herausgeben, wird der Rest als Spende verbucht
         /// </summary>
-        public int DonationCents => -1;
+        public int DonationCents => _donationCents;
 
         /// <summary>
         /// Münze wird eingenommen.
@@ -55,7 +66,18 @@ namespace CoffeeSlotMachine.Core.Entities
         /// <returns>isFinished ist true, wenn der Produktpreis zumindest erreicht wurde</returns>
         public bool InsertCoin(int coinValue)
         {
-            throw new NotImplementedException();
+            bool isFinished = false;
+            _thrownInCents += coinValue;
+            ThrownInCoinValues = $"{ThrownInCoinValues}{coinValue}";
+
+            if (_thrownInCents >= Product.PriceInCents)
+            {
+                _returnCents = _thrownInCents - Product.PriceInCents;
+                isFinished = true;
+            }
+            ThrownInCoinValues = $"{ThrownInCoinValues};";
+
+            return isFinished;
         }
 
         /// <summary>

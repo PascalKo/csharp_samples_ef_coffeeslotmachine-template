@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace CoffeeSlotMachine.Core.Entities
 {
@@ -88,7 +89,36 @@ namespace CoffeeSlotMachine.Core.Entities
         /// <param name="coins">Aktueller Zustand des Münzdepots</param>
         public void FinishPayment(IEnumerable<Coin> coins)
         {
-            throw new NotImplementedException();
+            int ret = _returnCents;
+            foreach (var item in coins.OrderByDescending(c => c.CoinValue))
+            {
+                if (ret >= item.CoinValue && item.Amount > 0)
+                {
+                    if (ret <= item.CoinValue)
+                    {
+                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue}";
+                    }
+                    else
+                    {
+                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue};";
+                    }
+
+                    ret -= item.CoinValue;
+                    item.Amount--;
+
+                    while (ret > item.CoinValue && item.Amount > 0)
+                    {
+                        ret -= item.CoinValue;
+                        item.Amount--;
+                        ReturnCoinValues = $"{ReturnCoinValues}{item.CoinValue};";
+                    }
+                }
+            }
+
+            if (ret > 0)
+            {
+                _donationCents = _returnCents;
+            }
         }
     }
 }
